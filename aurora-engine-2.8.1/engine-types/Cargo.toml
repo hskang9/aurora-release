@@ -1,0 +1,27 @@
+[package]
+name = "aurora-engine-types"
+version = "1.0.0"
+authors = ["Aurora Labs <hello@aurora.dev>"]
+edition = "2021"
+description = ""
+documentation = ""
+readme = true
+homepage = "https://github.com/aurora-is-near/aurora-engine"
+repository = "https://github.com/aurora-is-near/aurora-engine"
+license = "CC0-1.0"
+publish = false
+autobenches = false
+
+[dependencies]
+borsh = { version = "0.9.3", default-features = false }
+hex = { version = "0.4", default-features = false, features = ["alloc"] }
+primitive-types = { version = "0.12", default-features = false, features = ["rlp"] }
+serde = { version = "1", features = ["derive"], optional = true }
+
+[dev-dependencies]
+rand = "0.8.5"
+
+[features]
+default = ["std"]
+std = ["borsh/std", "hex/std", "primitive-types/std"]
+impl-serde = ["primitive-types/impl-serde", "serde"]

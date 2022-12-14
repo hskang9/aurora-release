@@ -1,0 +1,20 @@
+---
+on:
+  schedule:
+    - cron: '27 8 * * 1,4'
+name: Scheduled lints
+jobs:
+  clippy:
+    name: Nightly Clippy
+    runs-on: [self-hosted, heavy]
+    steps:
+      - name: Potential broken submodules fix
+        run: |
+          git checkout -f $(git -c user.name=x -c user.email=x@x commit-tree $(git hash-object -t tree /dev/null) < /dev/null) || :
+      - name: Clone the repository
+        uses: actions/checkout@v3
+      - run: make etc/eth-contracts/res/EvmErc20.bin
+      - name: Update toolchain
+        run: rustup update nightly
+      - name: Run cargo clippy
+        run: cargo +nightly clippy --no-default-features --features=mainnet -- -D warnings

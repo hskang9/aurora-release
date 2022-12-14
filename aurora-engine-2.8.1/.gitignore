@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Visual Studio Code
+.vscode/
+.run/
+
+# IDEA
+.idea
+# Editor backup files
+*~
+
+# ENV
+.env/custom.env
+
+# Rust artifacts
+bin/
+target/
+etc/tests/*/target/
+etc/tests/*/Cargo.lock
+
+# Solidity artifacts
+artifacts/
+cache/
+node_modules/

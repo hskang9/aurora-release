@@ -1,0 +1,50 @@
+[profile.release]
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = true
+lto = true
+panic = "abort"
+incremental = false
+codegen-units = 1
+rpath = false
+
+[profile.dev]
+# Due to a strange bug, setting this to 3 will cause test failures
+opt-level = "z"
+debug = false
+debug-assertions = true
+overflow-checks = true
+lto = true
+panic = "abort"
+incremental = false
+codegen-units = 1
+rpath = false
+
+[profile.bench]
+# lto must be enabled in the bench profile as well for
+# it to actually happen when running tests with --release
+lto = true
+opt-level = 3
+
+[workspace]
+resolver = "2"
+members = [
+    "engine",
+    "engine-test-doubles",
+    "engine-precompiles",
+    "engine-sdk",
+    "engine-standalone-storage",
+    "engine-standalone-tracing",
+    "engine-tests",
+    "engine-transactions",
+    "engine-types",
+]
+exclude = [
+    "etc/tests/state-migration-test",
+    "etc/tests/ft-receiver",
+    "etc/tests/benchmark-contract",
+    "etc/tests/self-contained-5bEgfRQ",
+    "etc/tests/fibonacci",
+    "etc/xcc-router",
+]
