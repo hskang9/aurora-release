@@ -68,6 +68,7 @@ pub unsafe fn on_alloc_error(_: core::alloc::Layout) -> ! {
 
 #[cfg(feature = "contract")]
 mod contract {
+    use aurora_engine_precompiles::account_ids::predecessor_account;
     use borsh::{BorshDeserialize, BorshSerialize};
 
     use crate::connector::{self, EthConnectorContract};
@@ -997,8 +998,9 @@ mod contract {
     }
 
     fn require_owner_only(state: &EngineState, predecessor_account_id: &AccountId) {
+        let log = ["owner Id: ".as_bytes(), state.clone().owner_id.as_bytes(), ", predecessor_account_id: ".as_bytes(), predecessor_account_id.clone().as_bytes()].concat();
         if &state.owner_id != predecessor_account_id {
-            sdk::panic_utf8(errors::ERR_NOT_ALLOWED);
+            sdk::panic_utf8(&log);
         }
     }
 
