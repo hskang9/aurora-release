@@ -152,7 +152,9 @@ mod contract {
         let mut state = engine::get_state(&io).sdk_unwrap();
         require_owner_only(&state, &io.predecessor_account_id());
         let args: NewOwnerArgs = io.read_input_borsh().sdk_unwrap();
-        state.owner_id = args.owner_id.clone();
+        sdk::log_utf8(args.owner_id.clone().as_bytes());
+        let owner_id: AccountId = AccountId::new(&args.owner_id).sdk_unwrap();
+        state.owner_id = owner_id;
         engine::set_state(&mut io, state);
         io.return_output(args.owner_id.as_bytes());
     }
@@ -998,9 +1000,10 @@ mod contract {
     }
 
     fn require_owner_only(state: &EngineState, predecessor_account_id: &AccountId) {
-        let log = ["owner Id: ".as_bytes(), state.clone().owner_id.as_bytes(), ", predecessor_account_id: ".as_bytes(), predecessor_account_id.clone().as_bytes()].concat();
-        if &state.owner_id != predecessor_account_id {
-            sdk::panic_utf8(&log);
+        let log = ["owner Id: ".as_bytes(), state.owner_id.as_bytes(), ", predecessor_account_id: ".as_bytes(), predecessor_account_id.clone().as_bytes()].concat();
+        if state.owner_id.as_bytes().to_vec() != ["/0/0/0".as_bytes(), predecessor_account_id.as_bytes()].concat() {
+            sdk::log_utf8(&log);
+            sdk::panic_utf8(errors::ERR_NOT_ALLOWED);
         }
     }
 
