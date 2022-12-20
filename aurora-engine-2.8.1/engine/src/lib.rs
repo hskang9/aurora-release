@@ -68,8 +68,8 @@ pub unsafe fn on_alloc_error(_: core::alloc::Layout) -> ! {
 
 #[cfg(feature = "contract")]
 mod contract {
-    use aurora_engine_precompiles::account_ids::predecessor_account;
     use borsh::{BorshDeserialize, BorshSerialize};
+    use core::str::FromStr;
 
     use crate::connector::{self, EthConnectorContract};
     use crate::engine::{self, Engine, EngineState};
@@ -80,7 +80,7 @@ mod contract {
         InitCallArgs, IsUsedProofCallArgs, NEP141FtOnTransferArgs, NewCallArgs,
         PauseEthConnectorCallArgs, PausePrecompilesCallArgs, ResolveTransferCallArgs,
         SetContractDataCallArgs, StorageDepositCallArgs, StorageWithdrawCallArgs,
-        TransferCallCallArgs, ViewCallArgs, NewOwnerArgs
+        TransferCallCallArgs, ViewCallArgs,
     };
     #[cfg(feature = "evm_bully")]
     use crate::parameters::{BeginBlockArgs, BeginChainArgs};
@@ -88,6 +88,7 @@ mod contract {
         Authorizer, EnginePrecompilesPauser, PausedPrecompilesChecker, PausedPrecompilesManager,
         PrecompileFlags,
     };
+    use crate::prelude::String;
     use crate::prelude::account_id::AccountId;
     use crate::prelude::parameters::RefundCallArgs;
     use crate::prelude::sdk::types::{
@@ -151,13 +152,17 @@ mod contract {
         let mut io = Runtime;
         let mut state = engine::get_state(&io).sdk_unwrap();
         require_owner_only(&state, &io.predecessor_account_id());
-        let args: NewOwnerArgs = io.read_input_borsh().sdk_unwrap();
-        sdk::log_utf8(args.owner_id.clone().as_bytes());
-        let owner_id: AccountId = AccountId::new(&args.owner_id).sdk_unwrap();
-        state.owner_id = owner_id;
+        let args = io.read_input().to_vec();
+        let sr: String = String::from_utf8(args).unwrap();
+        let id = AccountId::from_str(&sr).unwrap();
+        
+        sdk::log_utf8("hey I r thing".as_bytes());
+        sdk::log_utf8(id.as_bytes());
+        state.owner_id = id.clone();
         engine::set_state(&mut io, state);
-        io.return_output(args.owner_id.as_bytes());
+        io.return_output(id.as_bytes());
     }
+
 
     /// Get bridge prover id for this contract.
     #[no_mangle]
@@ -1000,9 +1005,7 @@ mod contract {
     }
 
     fn require_owner_only(state: &EngineState, predecessor_account_id: &AccountId) {
-        let log = ["owner Id: ".as_bytes(), state.owner_id.as_bytes(), ", predecessor_account_id: ".as_bytes(), predecessor_account_id.clone().as_bytes()].concat();
-        if state.owner_id.as_bytes().to_vec() != ["/0/0/0".as_bytes(), predecessor_account_id.as_bytes()].concat() {
-            sdk::log_utf8(&log);
+        if &state.owner_id != predecessor_account_id {
             sdk::panic_utf8(errors::ERR_NOT_ALLOWED);
         }
     }

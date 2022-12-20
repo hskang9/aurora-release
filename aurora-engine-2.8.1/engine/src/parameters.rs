@@ -28,11 +28,6 @@ pub struct NewCallArgs {
     pub upgrade_delay_blocks: u64,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, BorshSerialize, BorshDeserialize)]
-pub struct NewOwnerArgs {
-    pub owner_id: AccountId,
-}
-
 /// Borsh-encoded log for use in a `SubmitResult`.
 #[derive(Debug, Clone, PartialEq, Eq, BorshSerialize, BorshDeserialize)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
